@@ -1,0 +1,12 @@
+1-Start with configuartion of env (Done)
+2-work on database and check connection (Done)
+3-work on user login and signup and register (Done)
+4-validation (Done)
+5-Authentication (Done)
+6-Fill Products table
+7-Cart
+8-Order
+
+
+/edit 
+JWT STRATEGY TO BE PRIVATE

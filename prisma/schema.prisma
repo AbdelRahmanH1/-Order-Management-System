@@ -1,0 +1,73 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  userId     Int      @id @default(autoincrement())
+  name       String
+  email      String   @unique
+  password   String
+  address    String
+  cart       Cart?
+  orders     Order[]
+}
+
+model Product {
+  productId   Int      @id @default(autoincrement())
+  name        String
+  description String
+  price       Float
+  stock       Int
+  cartItems   CartProduct[]
+  orderItems  OrderProduct[]
+}
+
+model Cart {
+  cartId     Int        @id @default(autoincrement())
+  userId     Int        @unique
+  user       User       @relation(fields: [userId], references: [userId])
+  products   CartProduct[]
+}
+
+model Order {
+  orderId     Int         @id @default(autoincrement())
+  orderDate   DateTime    @default(now())
+  status      String
+  userId      Int
+  user        User        @relation(fields: [userId], references: [userId])
+  products    OrderProduct[]
+  couponId    Int?
+  coupon      Coupon?     @relation(fields: [couponId], references: [couponId])
+}
+
+model CartProduct {
+  cartProductId Int      @id @default(autoincrement())
+  cartId        Int
+  productId     Int
+  quantity      Int
+  cart          Cart      @relation(fields: [cartId], references: [cartId])
+  product       Product   @relation(fields: [productId], references: [productId])
+  @@unique([cartId, productId])
+}
+
+model OrderProduct {
+  orderProductId Int      @id @default(autoincrement())
+  orderId        Int
+  productId      Int
+  quantity       Int
+  order          Order    @relation(fields: [orderId], references: [orderId])
+  product        Product  @relation(fields: [productId], references: [productId])
+  @@unique([orderId, productId])
+}
+
+model Coupon {
+  couponId      Int      @id @default(autoincrement())
+  code          String   @unique
+  discount      Float
+  orders        Order[]
+}
