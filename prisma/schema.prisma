@@ -7,6 +7,14 @@ generator client {
   provider = "prisma-client-js"
 }
 
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
 model User {
   userId     Int      @id @default(autoincrement())
   name       String
@@ -37,7 +45,7 @@ model Cart {
 model Order {
   orderId     Int         @id @default(autoincrement())
   orderDate   DateTime    @default(now())
-  status      String
+  status      OrderStatus @default(PENDING)
   userId      Int
   user        User        @relation(fields: [userId], references: [userId])
   products    OrderProduct[]
