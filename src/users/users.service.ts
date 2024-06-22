@@ -8,6 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { ResponseInterface } from 'src/Interfaces/response.interface';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { userRole } from './user-role.enum';
 import { LoginDTO } from './userDTO/login.dto';
 import { SignupDTO } from './userDTO/signup.dto';
 
@@ -47,12 +48,15 @@ export class UsersService {
       body.password,
       parseInt(process.env.SALTROUND),
     );
+
+    const role: userRole = body.role ? (body.role as userRole) : userRole.USER;
     const user = await this.prisma.user.create({
       data: {
         name: body.name,
         password: hashPassword,
         email: body.email,
         address: body.address,
+        role: role,
       },
     });
     await this.prisma.cart.create({

@@ -13,6 +13,8 @@ import {
 import { Request } from 'express';
 import { ResponseInterface } from 'src/Interfaces/response.interface';
 import { authenticationGuard } from 'src/guards/authentication.guard';
+import { authorizationGuard } from 'src/guards/authorization.guard';
+import { userRole } from 'src/users/user-role.enum';
 import { CartService } from './cart.service';
 import { AddCartDTO } from './cartDTO/addCart.dto';
 import { RemoveCartDTO } from './cartDTO/removeCart.dto';
@@ -49,6 +51,7 @@ export class CartController {
   }
 
   @Get(':userId')
+  @UseGuards(authenticationGuard, new authorizationGuard([userRole.ADMIN]))
   viewCart(
     @Param('userId', ParseIntPipe) userId: number,
   ): Promise<ResponseInterface> {

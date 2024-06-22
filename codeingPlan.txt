@@ -10,3 +10,4 @@
 
 /edit 
 JWT STRATEGY TO BE PRIVATE
+Models Private

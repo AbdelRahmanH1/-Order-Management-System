@@ -32,4 +32,8 @@ export class SignupDTO {
   @MinLength(10)
   @IsString()
   address: string;
+
+  @IsOptional()
+  @IsEnum(['ADMIN', 'USER'])
+  role: string;
 }

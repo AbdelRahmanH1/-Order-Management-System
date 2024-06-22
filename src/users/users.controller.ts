@@ -2,6 +2,8 @@ import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { ApiOAuth2, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { authenticationGuard } from 'src/guards/authentication.guard';
+import { authorizationGuard } from 'src/guards/authorization.guard';
+import { userRole } from './user-role.enum';
 import { LoginDTO } from './userDTO/login.dto';
 import { SignupDTO } from './userDTO/signup.dto';
 import { UsersService } from './users.service';
@@ -23,7 +25,7 @@ export class UsersController {
   @Get('profile')
   /* @ApiSecurity('Authorisation') */
   @ApiOAuth2(['pets:write'])
-  @UseGuards(authenticationGuard)
+  @UseGuards(authenticationGuard, new authorizationGuard([userRole.ADMIN]))
   profile(@Req() req: Request) {
     return this._UsersServices.profile(req);
   }

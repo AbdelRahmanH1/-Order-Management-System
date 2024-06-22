@@ -15,12 +15,18 @@ enum OrderStatus {
   CANCELLED
 }
 
+enum UserRole {
+  USER
+  ADMIN
+}
+
 model User {
   userId     Int      @id @default(autoincrement())
   name       String
   email      String   @unique
   password   String
   address    String
+  role       UserRole @default(USER)
   cart       Cart?
   orders     Order[]
 }
@@ -60,6 +66,7 @@ model CartProduct {
   quantity      Int
   cart          Cart      @relation(fields: [cartId], references: [cartId])
   product       Product   @relation(fields: [productId], references: [productId])
+  
   @@unique([cartId, productId])
 }
 
@@ -68,8 +75,10 @@ model OrderProduct {
   orderId        Int
   productId      Int
   quantity       Int
+  price          Float    
   order          Order    @relation(fields: [orderId], references: [orderId])
   product        Product  @relation(fields: [productId], references: [productId])
+  
   @@unique([orderId, productId])
 }
 
