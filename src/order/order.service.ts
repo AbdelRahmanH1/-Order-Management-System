@@ -97,11 +97,7 @@ export class OrderService {
         result: newOrder,
       };
     } catch (error) {
-      if (error instanceof BadRequestException) {
-        throw error;
-      } else {
-        throw new BadRequestException('Failed to create order');
-      }
+      throw error;
     }
   }
 
@@ -137,7 +133,7 @@ export class OrderService {
               include: { product: true },
             },
             user: true,
-            coupon: true, // Include coupon to check for finalPrice
+            coupon: true,
           },
         });
       }
@@ -150,7 +146,7 @@ export class OrderService {
               include: { product: true },
             },
             user: true,
-            coupon: true, // Include coupon to check for finalPrice
+            coupon: true,
           },
         });
 
@@ -169,7 +165,6 @@ export class OrderService {
         return acc + prod.quantity * prod.product.price;
       }, 0);
 
-      // Use finalPrice if available, otherwise fall back to totalPrice
       const finalPrice = order.finalPrice || totalPrice;
 
       // Format the response with desired fields
@@ -196,12 +191,7 @@ export class OrderService {
 
       return response;
     } catch (error) {
-      console.error('Error fetching order:', error);
-      if (error instanceof NotFoundException) {
-        throw error;
-      } else {
-        throw new NotFoundException('Order not found');
-      }
+      throw error;
     }
   }
 
@@ -303,7 +293,6 @@ export class OrderService {
 
       return response;
     } catch (error) {
-      console.error('Error applying coupon:', error);
       throw error;
     }
   }

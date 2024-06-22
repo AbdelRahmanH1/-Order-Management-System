@@ -21,51 +21,74 @@ export class UsersService {
   ) {}
 
   async login(body: LoginDTO): Promise<ResponseInterface> {
-    const user = await this.prisma.user.findUnique({
-      where: {
-        email: body.email,
-      },
-    });
-    if (!user) throw new NotFoundException('User not found');
-    const isMatch = await bcrypt.compare(body.password, user.password);
-    if (!isMatch) throw new BadRequestException('Invalid Password');
+    try {
+      // Find user by email
+      const user = await this.prisma.user.findUnique({
+        where: {
+          email: body.email,
+        },
+      });
 
-    const token = this._jwtService.sign(
-      { email: user.email },
-      { secret: process.env.SECRETKEY },
-    );
-    return { success: true, token };
+      if (!user) {
+        // Throw NotFoundException for clarity
+        throw new NotFoundException('User not found');
+      }
+
+      // Compare password hashes
+      const isMatch = await bcrypt.compare(body.password, user.password);
+      if (!isMatch) {
+        // Throw BadRequestException for clear error messaging
+        throw new BadRequestException('Invalid Password');
+      }
+
+      // Generate token on successful login
+      const token = this._jwtService.sign(
+        { email: user.email },
+        { secret: process.env.SECRETKEY },
+      );
+
+      // Return successful response with token
+      return { success: true, token };
+    } catch (error) {
+      throw error;
+    }
   }
 
   async signUp(body: SignupDTO): Promise<ResponseInterface> {
-    const isExists = await this.prisma.user.findUnique({
-      where: {
-        email: body.email,
-      },
-    });
-    if (isExists) throw new ConflictException('User already exists!');
+    try {
+      const isExists = await this.prisma.user.findUnique({
+        where: {
+          email: body.email,
+        },
+      });
+      if (isExists) throw new ConflictException('User already exists!');
 
-    const hashPassword = await bcrypt.hash(
-      body.password,
-      parseInt(process.env.SALTROUND),
-    );
+      const hashPassword = await bcrypt.hash(
+        body.password,
+        parseInt(process.env.SALTROUND),
+      );
 
-    const role: userRole = body.role ? (body.role as userRole) : userRole.USER;
-    const user = await this.prisma.user.create({
-      data: {
-        name: body.name,
-        password: hashPassword,
-        email: body.email,
-        address: body.address,
-        role: role,
-      },
-    });
-    await this.prisma.cart.create({
-      data: {
-        userId: user.userId,
-      },
-    });
-    return { success: true, message: 'User created successfully!' };
+      const role: userRole = body.role
+        ? (body.role as userRole)
+        : userRole.USER;
+      const user = await this.prisma.user.create({
+        data: {
+          name: body.name,
+          password: hashPassword,
+          email: body.email,
+          address: body.address,
+          role: role,
+        },
+      });
+      await this.prisma.cart.create({
+        data: {
+          userId: user.userId,
+        },
+      });
+      return { success: true, message: 'User created successfully!' };
+    } catch (error) {
+      throw error;
+    }
   }
 
   async orderHistory(userId: number, req: any): Promise<ResponseInterface> {
@@ -77,9 +100,9 @@ export class UsersService {
           where: { userId },
           include: {
             products: {
-              include: { product: true }, // Include related product details
+              include: { product: true },
             },
-            user: true, // Include related user details
+            user: true,
           },
         });
       } else if (req.user.role === userRole.USER) {
@@ -94,9 +117,9 @@ export class UsersService {
           where: { userId: req.user.userId },
           include: {
             products: {
-              include: { product: true }, // Include related product details
+              include: { product: true },
             },
-            user: true, // Include related user details
+            user: true,
           },
         });
       }
@@ -129,11 +152,7 @@ export class UsersService {
 
       return { success: true, result: formattedOrders };
     } catch (error) {
-      if (
-        error instanceof NotFoundException ||
-        error instanceof ForbiddenException
-      )
-        return { success: false, result: error };
+      throw error;
     }
   }
 }
