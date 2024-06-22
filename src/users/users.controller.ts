@@ -1,6 +1,16 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
-import { ApiOAuth2, ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
+import { ResponseInterface } from 'src/Interfaces/response.interface';
 import { authenticationGuard } from 'src/guards/authentication.guard';
 import { authorizationGuard } from 'src/guards/authorization.guard';
 import { userRole } from './user-role.enum';
@@ -14,19 +24,24 @@ export class UsersController {
   constructor(private readonly _UsersServices: UsersService) {}
 
   @Post('login')
-  login(@Body() body: LoginDTO) {
+  login(@Body() body: LoginDTO): Promise<ResponseInterface> {
     return this._UsersServices.login(body);
   }
 
   @Post('signup')
-  signUp(@Body() body: SignupDTO): object {
+  signUp(@Body() body: SignupDTO): Promise<ResponseInterface> {
     return this._UsersServices.signUp(body);
   }
-  @Get('profile')
-  /* @ApiSecurity('Authorisation') */
-  @ApiOAuth2(['pets:write'])
-  @UseGuards(authenticationGuard, new authorizationGuard([userRole.ADMIN]))
-  profile(@Req() req: Request) {
-    return this._UsersServices.profile(req);
+
+  @Get(':userId/orders')
+  @UseGuards(
+    authenticationGuard,
+    new authorizationGuard([userRole.ADMIN, userRole.USER]),
+  )
+  orderHistory(
+    @Param('userId', ParseIntPipe) userId: number,
+    @Req() req: Request,
+  ): Promise<ResponseInterface> {
+    return this._UsersServices.orderHistory(userId, req);
   }
 }

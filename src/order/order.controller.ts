@@ -15,9 +15,10 @@ import { authenticationGuard } from 'src/guards/authentication.guard';
 import { authorizationGuard } from 'src/guards/authorization.guard';
 import { userRole } from 'src/users/user-role.enum';
 import { OrderService } from './order.service';
+import { ApplyCouponDTO } from './orderDTO/applyCoupon.dto';
 import { StatusDTO } from './orderDTO/status.dto';
 
-@Controller('api/order')
+@Controller('api/orders')
 export class OrderController {
   constructor(private readonly _OrderService: OrderService) {}
 
@@ -46,5 +47,14 @@ export class OrderController {
     @Param('orderId', ParseIntPipe) orderId: number,
   ): Promise<ResponseInterface> {
     return this._OrderService.getOrderById(orderId, req);
+  }
+
+  @Post('apply-coupon')
+  @UseGuards(authenticationGuard)
+  async applyCoupon(
+    @Body() body: ApplyCouponDTO,
+    @Req() req: any,
+  ): Promise<ResponseInterface> {
+    return this._OrderService.applyCoupon(body, req);
   }
 }

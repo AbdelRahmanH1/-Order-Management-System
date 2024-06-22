@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -7,6 +8,7 @@ import { OrderStatus } from '@prisma/client';
 import { ResponseInterface } from 'src/Interfaces/response.interface';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { userRole } from 'src/users/user-role.enum';
+import { ApplyCouponDTO } from './orderDTO/applyCoupon.dto';
 
 @Injectable()
 export class OrderService {
@@ -135,6 +137,7 @@ export class OrderService {
               include: { product: true },
             },
             user: true,
+            coupon: true, // Include coupon to check for finalPrice
           },
         });
       }
@@ -147,8 +150,14 @@ export class OrderService {
               include: { product: true },
             },
             user: true,
+            coupon: true, // Include coupon to check for finalPrice
           },
         });
+
+        // If the order is not found or user does not have access
+        if (!order) {
+          throw new NotFoundException("You don't have access to this order");
+        }
       }
 
       if (!order) {
@@ -159,6 +168,9 @@ export class OrderService {
       const totalPrice = order.products.reduce((acc, prod) => {
         return acc + prod.quantity * prod.product.price;
       }, 0);
+
+      // Use finalPrice if available, otherwise fall back to totalPrice
+      const finalPrice = order.finalPrice || totalPrice;
 
       // Format the response with desired fields
       const response: ResponseInterface = {
@@ -171,7 +183,7 @@ export class OrderService {
             name: order.user.name,
             email: order.user.email,
           },
-          totalPrice: totalPrice,
+          totalPrice: finalPrice,
           products: order.products.map((prod) => ({
             productId: prod.productId,
             productName: prod.product.name,
@@ -185,7 +197,114 @@ export class OrderService {
       return response;
     } catch (error) {
       console.error('Error fetching order:', error);
-      throw new NotFoundException('Order not found');
+      if (error instanceof NotFoundException) {
+        throw error;
+      } else {
+        throw new NotFoundException('Order not found');
+      }
+    }
+  }
+
+  async applyCoupon(
+    body: ApplyCouponDTO,
+    req: any,
+  ): Promise<ResponseInterface> {
+    const { orderId, discountNumber } = body;
+
+    try {
+      // Find the order
+      const order = await this.prisma.order.findUnique({
+        where: { orderId },
+        include: {
+          products: {
+            include: { product: true },
+          },
+          user: true,
+          coupon: true,
+        },
+      });
+
+      if (!order) {
+        throw new NotFoundException('Order not found');
+      }
+
+      // Check if the user is the owner of the order or not
+      if (order.userId !== req.user.userId) {
+        throw new ForbiddenException('You do not have access to this order');
+      }
+
+      // Find the coupon
+      const coupon = await this.prisma.coupon.findUnique({
+        where: { code: discountNumber },
+      });
+
+      if (!coupon) {
+        throw new NotFoundException('Coupon not found');
+      }
+
+      // Calculate the discount
+      const discount = coupon.discount;
+      const totalPrice = order.products.reduce(
+        (acc, prod) => acc + prod.quantity * prod.product.price,
+        0,
+      );
+      const discountedPrice = totalPrice - discount;
+
+      // Ensure the discounted price is not negative
+      const finalPrice = Math.max(discountedPrice, 0);
+
+      // Update the order with the discounted price and coupon
+      await this.prisma.order.update({
+        where: { orderId },
+        data: {
+          couponId: coupon.couponId,
+          finalPrice: finalPrice,
+        },
+      });
+
+      // Fetch the updated order again to ensure consistency
+      const updatedOrder = await this.prisma.order.findUnique({
+        where: { orderId },
+        include: {
+          products: {
+            include: { product: true },
+          },
+          user: true,
+          coupon: true,
+        },
+      });
+
+      if (!updatedOrder) {
+        throw new NotFoundException('Updated order not found');
+      }
+
+      // Format the response
+      const response: ResponseInterface = {
+        success: true,
+        result: {
+          orderId: updatedOrder.orderId,
+          orderDate: updatedOrder.orderDate,
+          status: updatedOrder.status,
+          user: {
+            name: updatedOrder.user.name,
+            email: updatedOrder.user.email,
+          },
+          totalPrice: finalPrice,
+          discountApplied: discount,
+          products: updatedOrder.products.map((prod) => ({
+            productId: prod.productId,
+            productName: prod.product.name,
+            quantity: prod.quantity,
+            unitPrice: prod.product.price,
+            subtotal: prod.quantity * prod.product.price,
+          })),
+        },
+      };
+
+      return response;
+    } catch (error) {
+      console.error('Error applying coupon:', error);
+      throw error;
     }
   }
 }

@@ -57,6 +57,7 @@ model Order {
   products    OrderProduct[]
   couponId    Int?
   coupon      Coupon?     @relation(fields: [couponId], references: [couponId])
+  finalPrice  Float?
 }
 
 model CartProduct {

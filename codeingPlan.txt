@@ -3,11 +3,14 @@
 3-work on user login and signup and register (Done)
 4-validation (Done)
 5-Authentication (Done)
-6-Fill Products table
-7-Cart
-8-Order
+6-Fill Products table (Done)
+7-Cart (Done)
+8-Order (Done)
 
 
-/edit 
-JWT STRATEGY TO BE PRIVATE
-Models Private
+Tommorow:
+Bouns Code;
+enhanced Code with models and jwt and more 
+swagger
+Study Prisma
+

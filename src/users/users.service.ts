@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -67,7 +68,72 @@ export class UsersService {
     return { success: true, message: 'User created successfully!' };
   }
 
-  profile(req: any) {
-    console.log(req.user);
+  async orderHistory(userId: number, req: any): Promise<ResponseInterface> {
+    let orders: any;
+    try {
+      if (req.user.role === userRole.ADMIN) {
+        // Admin can view order history for any user
+        orders = await this.prisma.order.findMany({
+          where: { userId },
+          include: {
+            products: {
+              include: { product: true }, // Include related product details
+            },
+            user: true, // Include related user details
+          },
+        });
+      } else if (req.user.role === userRole.USER) {
+        // User can only view their own order history
+        if (userId !== req.user.userId) {
+          throw new ForbiddenException(
+            "You do not have access to this user's order history",
+          );
+        }
+
+        orders = await this.prisma.order.findMany({
+          where: { userId: req.user.userId },
+          include: {
+            products: {
+              include: { product: true }, // Include related product details
+            },
+            user: true, // Include related user details
+          },
+        });
+      }
+
+      if (!orders || orders.length === 0) {
+        throw new NotFoundException('No orders found');
+      }
+
+      // Format the response with desired fields
+      const formattedOrders = orders.map((order) => ({
+        orderId: order.orderId,
+        orderDate: order.orderDate,
+        status: order.status,
+        user: {
+          name: order.user.name,
+          email: order.user.email,
+        },
+        totalPrice: order.products.reduce(
+          (acc, prod) => acc + prod.quantity * prod.product.price,
+          0,
+        ),
+        products: order.products.map((prod) => ({
+          productId: prod.productId,
+          productName: prod.product.name,
+          quantity: prod.quantity,
+          unitPrice: prod.product.price,
+          subtotal: prod.quantity * prod.product.price,
+        })),
+      }));
+
+      return { success: true, result: formattedOrders };
+    } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ForbiddenException
+      )
+        return { success: false, result: error };
+    }
   }
 }
