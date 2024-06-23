@@ -6,11 +6,13 @@
 6-Fill Products table (Done)
 7-Cart (Done)
 8-Order (Done)
-
+Bouns Code (done);
+add tryCatch code (done)
+enhanced Code with models and jwt and more (Done)
 
 Tommorow:
-Bouns Code;
-enhanced Code with models and jwt and more 
-swagger
+
+Continue swagger from security and enhanced
+handle utils and resposne 
 Study Prisma
 

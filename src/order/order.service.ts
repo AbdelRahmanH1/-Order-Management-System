@@ -56,7 +56,7 @@ export class OrderService {
       );
 
       // 4. Create the order in the database
-      const newOrder = await this.prisma.order.create({
+      await this.prisma.order.create({
         data: {
           userId: userId,
           products: {
@@ -94,7 +94,6 @@ export class OrderService {
       return {
         success: true,
         message: 'Order created successfully',
-        result: newOrder,
       };
     } catch (error) {
       throw error;
@@ -152,7 +151,7 @@ export class OrderService {
 
         // If the order is not found or user does not have access
         if (!order) {
-          throw new NotFoundException("You don't have access to this order");
+          throw new ForbiddenException("You don't have access to this order");
         }
       }
 
