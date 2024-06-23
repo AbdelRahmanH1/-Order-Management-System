@@ -13,6 +13,7 @@ enhanced Code with models and jwt and more (Done)
 Tommorow:
 
 Continue swagger from security and enhanced
+edit viewCart in Cart Routers to get the option to user to see his cart
 handle utils and resposne 
 Study Prisma
 

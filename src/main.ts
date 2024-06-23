@@ -14,10 +14,20 @@ async function bootstrap() {
   );
   const config = new DocumentBuilder()
     .setTitle('Order Management System')
-    .setDescription('Order Management System API description')
+    .setDescription('<h4>Order Management System API description</h4>')
     .setVersion('0.1')
-    .addOAuth2()
-    /* .addApiKey({ type: 'apiKey', name: 'Authorisation', in: 'header' }) */
+    .addServer('http://www.localhost:3000/')
+    .setContact(
+      'GitHub Project',
+      'https://github.com/AbdelRahmanH1/-Order-Management-System',
+      'hossamabdelrahman62@gmail.com',
+    )
+    .addSecurity('customToken', {
+      type: 'apiKey',
+      name: 'Authorization',
+      in: 'header',
+      description: 'Custom token format: SH__<email>-<random-string>',
+    })
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

@@ -16,6 +16,8 @@ import {
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
+  ApiOperation,
+  ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger';
 import { Request } from 'express';
@@ -35,6 +37,7 @@ import { RemoveCartDTO } from './cartDTO/removeCart.dto';
 export class CartController {
   constructor(private readonly _cartService: CartService) {}
 
+  // add products to cart
   @ApiCreatedResponse({
     description: 'Product added in Cart',
     schema: successResponse,
@@ -47,6 +50,11 @@ export class CartController {
     description: 'Something went wrong! Contact the support',
     schema: failedResponse,
   })
+  @ApiOperation({
+    summary: 'Add Product to Cart',
+    description: 'must get the productId to save it in cart',
+  })
+  @ApiSecurity('customToken')
   @Post('add')
   @UseGuards(authenticationGuard)
   addToCart(
@@ -56,6 +64,7 @@ export class CartController {
     return this._cartService.addToCart(body, req);
   }
 
+  // Update cart
   @ApiOkResponse({
     description: 'Product quantity updated successfully.',
     schema: successResponse,
@@ -68,6 +77,12 @@ export class CartController {
     description: 'Product is not in the cart',
     schema: failedResponse,
   })
+  @ApiSecurity('customToken')
+  @ApiOperation({
+    summary: 'Update quantity of product in the cart ',
+    description:
+      'User add the productId and the quantity that he want to add it to save it in database',
+  })
   @Put('update')
   @UseGuards(authenticationGuard)
   updateCart(
@@ -77,6 +92,7 @@ export class CartController {
     return this._cartService.updateCart(body, req);
   }
 
+  //Delete Product from cart
   @ApiOkResponse({
     description: 'Product removed successfully',
     schema: successResponse,
@@ -89,6 +105,11 @@ export class CartController {
     description: 'Something went wrong! Contact the support ',
     schema: failedResponse,
   })
+  @ApiSecurity('customToken')
+  @ApiOperation({
+    summary: 'Delete Product from Cart',
+    description: 'User can delete the cart using CartId',
+  })
   @Delete('remove')
   @UseGuards(authenticationGuard)
   removeFromCart(
@@ -98,6 +119,7 @@ export class CartController {
     return this._cartService.removeFromCart(body, req);
   }
 
+  // View Cart
   @ApiOkResponse({
     description: 'Cart details',
     schema: orderDetailsResponse,
@@ -106,8 +128,17 @@ export class CartController {
     description: 'User not found ',
     schema: failedResponse,
   })
+  @ApiSecurity('customToken')
+  @ApiOperation({
+    summary: 'View Cart details',
+    description:
+      'User or admin can access to see the cart Details using cartId',
+  })
   @Get(':userId')
-  @UseGuards(authenticationGuard, new authorizationGuard([userRole.ADMIN]))
+  @UseGuards(
+    authenticationGuard,
+    new authorizationGuard([userRole.ADMIN, userRole.USER]),
+  )
   viewCart(
     @Param('userId', ParseIntPipe) userId: number,
   ): Promise<ResponseInterface> {

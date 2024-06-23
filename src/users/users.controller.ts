@@ -15,6 +15,8 @@ import {
   ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
+  ApiOperation,
+  ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger';
 import { Request } from 'express';
@@ -35,6 +37,7 @@ import { UsersService } from './users.service';
 export class UsersController {
   constructor(private readonly _UsersServices: UsersService) {}
 
+  //Login
   @ApiOkResponse({ description: 'token', schema: userLoginResponse })
   @ApiBadRequestResponse({
     description: 'Validation Error',
@@ -44,11 +47,15 @@ export class UsersController {
     description: 'User not found',
     schema: failedResponse,
   })
+  @ApiOperation({
+    summary: 'Login User',
+    description: `this endpoint accept email and password then generate token`,
+  })
   @Post('login')
   login(@Body() body: LoginDTO): Promise<ResponseInterface> {
     return this._UsersServices.login(body);
   }
-
+  //SignUp
   @ApiCreatedResponse({
     description: 'User Created successfully',
     schema: successResponse,
@@ -57,11 +64,15 @@ export class UsersController {
     description: 'User already exists! ',
     schema: failedResponse,
   })
+  @ApiOperation({
+    summary: 'Create New User',
+    description: 'this endpoint accept User information to save it in database',
+  })
   @Post('signup')
   signUp(@Body() body: SignupDTO): Promise<ResponseInterface> {
     return this._UsersServices.signUp(body);
   }
-
+  //get History'order
   @ApiOkResponse({
     description: "Order's User history",
     schema: userHistoryResponse,
@@ -73,6 +84,11 @@ export class UsersController {
   @ApiNotFoundResponse({
     description: 'No orders found',
     schema: failedResponse,
+  })
+  @ApiSecurity('customToken')
+  @ApiOperation({
+    summary: "get the orders' history for each User",
+    description: 'this endpoint accept UserId and get all orders of user',
   })
   @Get(':userId/orders')
   @UseGuards(
