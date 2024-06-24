@@ -8,6 +8,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { ResponseInterface } from 'src/Interfaces/response.interface';
+import { formatOrderHistory } from 'src/Utils/formatHistory.utils';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { userRole } from './user-role.enum';
 import { LoginDTO } from './userDTO/login.dto';
@@ -129,26 +130,7 @@ export class UsersService {
       }
 
       // Format the response with desired fields
-      const formattedOrders = orders.map((order) => ({
-        orderId: order.orderId,
-        orderDate: order.orderDate,
-        status: order.status,
-        user: {
-          name: order.user.name,
-          email: order.user.email,
-        },
-        totalPrice: order.products.reduce(
-          (acc, prod) => acc + prod.quantity * prod.product.price,
-          0,
-        ),
-        products: order.products.map((prod) => ({
-          productId: prod.productId,
-          productName: prod.product.name,
-          quantity: prod.quantity,
-          unitPrice: prod.product.price,
-          subtotal: prod.quantity * prod.product.price,
-        })),
-      }));
+      const formattedOrders = formatOrderHistory(orders);
 
       return { success: true, result: formattedOrders };
     } catch (error) {

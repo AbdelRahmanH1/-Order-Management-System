@@ -4,7 +4,7 @@ import {
   ForbiddenException,
   Injectable,
 } from '@nestjs/common';
-import { userRole } from 'src/users/user-role.enum';
+import { userRole } from 'src/modules/User/user-role.enum';
 
 @Injectable()
 export class authorizationGuard implements CanActivate {

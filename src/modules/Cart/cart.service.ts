@@ -1,9 +1,11 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { UserRole } from '@prisma/client';
 import { ResponseInterface } from 'src/Interfaces/response.interface';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AddCartDTO } from './cartDTO/addCart.dto';
@@ -181,7 +183,7 @@ export class CartService {
     }
   }
 
-  async viewCart(userId: number): Promise<ResponseInterface> {
+  async viewCart(userId: number, req: any): Promise<ResponseInterface> {
     try {
       const cart = await this.prisma.cart.findUnique({
         where: {
@@ -190,6 +192,7 @@ export class CartService {
         include: {
           user: {
             select: {
+              userId: true,
               name: true,
               email: true,
             },
@@ -207,10 +210,19 @@ export class CartService {
           },
         },
       });
-      if (!cart) throw new ConflictException('User not found');
 
-      if (cart.products.length === 0)
+      // Check if the cart exists
+      if (!cart) throw new ConflictException('Cart not found');
+
+      // Check if the user is authorized to access this cart
+      if (req.user.role === UserRole.USER && cart.userId !== req.user.userId) {
+        throw new ForbiddenException('Unauthorized access to cart');
+      }
+
+      // Check if the cart is empty
+      if (cart.products.length === 0) {
         return { success: true, message: 'Nothing in Cart' };
+      }
 
       return { success: true, result: cart };
     } catch (error) {

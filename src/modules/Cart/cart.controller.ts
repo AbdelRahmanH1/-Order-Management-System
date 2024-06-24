@@ -8,6 +8,7 @@ import {
   Post,
   Put,
   Req,
+  Request,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -20,14 +21,13 @@ import {
   ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger';
-import { Request } from 'express';
 import { ResponseInterface } from 'src/Interfaces/response.interface';
 import { authenticationGuard } from 'src/guards/authentication.guard';
 import { authorizationGuard } from 'src/guards/authorization.guard';
+import { userRole } from 'src/modules/User/user-role.enum';
 import { failedResponse } from 'src/swaggerResponse/failed.response';
 import { orderDetailsResponse } from 'src/swaggerResponse/orderDetails.response';
 import { successResponse } from 'src/swaggerResponse/success.response';
-import { userRole } from 'src/users/user-role.enum';
 import { CartService } from './cart.service';
 import { AddCartDTO } from './cartDTO/addCart.dto';
 import { RemoveCartDTO } from './cartDTO/removeCart.dto';
@@ -141,7 +141,8 @@ export class CartController {
   )
   viewCart(
     @Param('userId', ParseIntPipe) userId: number,
+    @Req() req: Request,
   ): Promise<ResponseInterface> {
-    return this._cartService.viewCart(userId);
+    return this._cartService.viewCart(userId, req);
   }
 }

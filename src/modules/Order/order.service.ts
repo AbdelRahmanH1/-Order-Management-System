@@ -5,9 +5,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { OrderStatus } from '@prisma/client';
+import { Order } from 'src/Interfaces/models/order.interface';
+
 import { ResponseInterface } from 'src/Interfaces/response.interface';
+import { formatOrder } from 'src/Utils/formatOrder.utils';
+import { userRole } from 'src/modules/User/user-role.enum';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { userRole } from 'src/users/user-role.enum';
 import { ApplyCouponDTO } from './orderDTO/applyCoupon.dto';
 
 @Injectable()
@@ -122,7 +125,7 @@ export class OrderService {
 
   async getOrderById(orderId: number, req: any): Promise<ResponseInterface> {
     try {
-      let order: any;
+      let order: Order;
 
       if (req.user.role === userRole.ADMIN) {
         order = await this.prisma.order.findUnique({
@@ -167,28 +170,9 @@ export class OrderService {
       const finalPrice = order.finalPrice || totalPrice;
 
       // Format the response with desired fields
-      const response: ResponseInterface = {
-        success: true,
-        result: {
-          orderId: order.orderId,
-          orderDate: order.orderDate,
-          status: order.status,
-          user: {
-            name: order.user.name,
-            email: order.user.email,
-          },
-          totalPrice: finalPrice,
-          products: order.products.map((prod) => ({
-            productId: prod.productId,
-            productName: prod.product.name,
-            quantity: prod.quantity,
-            unitPrice: prod.product.price,
-            subtotal: prod.quantity * prod.product.price,
-          })),
-        },
-      };
+      const response = formatOrder(order, finalPrice);
 
-      return response;
+      return { success: true, result: response };
     } catch (error) {
       throw error;
     }
@@ -250,47 +234,10 @@ export class OrderService {
           finalPrice: finalPrice,
         },
       });
-
-      // Fetch the updated order again to ensure consistency
-      const updatedOrder = await this.prisma.order.findUnique({
-        where: { orderId },
-        include: {
-          products: {
-            include: { product: true },
-          },
-          user: true,
-          coupon: true,
-        },
-      });
-
-      if (!updatedOrder) {
-        throw new NotFoundException('Updated order not found');
-      }
-
       // Format the response
-      const response: ResponseInterface = {
-        success: true,
-        result: {
-          orderId: updatedOrder.orderId,
-          orderDate: updatedOrder.orderDate,
-          status: updatedOrder.status,
-          user: {
-            name: updatedOrder.user.name,
-            email: updatedOrder.user.email,
-          },
-          totalPrice: finalPrice,
-          discountApplied: discount,
-          products: updatedOrder.products.map((prod) => ({
-            productId: prod.productId,
-            productName: prod.product.name,
-            quantity: prod.quantity,
-            unitPrice: prod.product.price,
-            subtotal: prod.quantity * prod.product.price,
-          })),
-        },
-      };
 
-      return response;
+      const response = formatOrder(order, finalPrice, discount);
+      return { success: true, result: response };
     } catch (error) {
       throw error;
     }

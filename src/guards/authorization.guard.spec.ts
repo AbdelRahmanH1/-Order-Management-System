@@ -1,4 +1,4 @@
-import { userRole } from 'src/users/user-role.enum';
+import { userRole } from 'src/modules/User/user-role.enum';
 import { authorizationGuard } from './authorization.guard';
 
 describe('GuradsGuard', () => {

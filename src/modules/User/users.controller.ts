@@ -26,7 +26,7 @@ import { failedResponse } from 'src/swaggerResponse/failed.response';
 import { successResponse } from 'src/swaggerResponse/success.response';
 import { userHistoryResponse } from 'src/swaggerResponse/userHistory.response';
 import { userLoginResponse } from 'src/swaggerResponse/userlogin.response';
-import { ResponseInterface } from './../Interfaces/response.interface';
+import { ResponseInterface } from '../../Interfaces/response.interface';
 import { userRole } from './user-role.enum';
 import { LoginDTO } from './userDTO/login.dto';
 import { SignupDTO } from './userDTO/signup.dto';
