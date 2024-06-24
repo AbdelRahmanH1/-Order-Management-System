@@ -7,6 +7,8 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { Order } from 'src/Interfaces/models/order.interface';
+import { User } from 'src/Interfaces/models/user.interface';
 import { ResponseInterface } from 'src/Interfaces/response.interface';
 import { formatOrderHistory } from 'src/Utils/formatHistory.utils';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -24,7 +26,7 @@ export class UsersService {
   async login(body: LoginDTO): Promise<ResponseInterface> {
     try {
       // Find user by email
-      const user = await this.prisma.user.findUnique({
+      const user: User = await this.prisma.user.findUnique({
         where: {
           email: body.email,
         },
@@ -36,7 +38,10 @@ export class UsersService {
       }
 
       // Compare password hashes
-      const isMatch = await bcrypt.compare(body.password, user.password);
+      const isMatch: boolean = await bcrypt.compare(
+        body.password,
+        user.password,
+      );
       if (!isMatch) {
         // Throw BadRequestException for clear error messaging
         throw new BadRequestException('Invalid Password');
@@ -57,14 +62,14 @@ export class UsersService {
 
   async signUp(body: SignupDTO): Promise<ResponseInterface> {
     try {
-      const isExists = await this.prisma.user.findUnique({
+      const isExists: User = await this.prisma.user.findUnique({
         where: {
           email: body.email,
         },
       });
       if (isExists) throw new ConflictException('User already exists!');
 
-      const hashPassword = await bcrypt.hash(
+      const hashPassword: string = await bcrypt.hash(
         body.password,
         parseInt(process.env.SALTROUND),
       );
@@ -72,7 +77,7 @@ export class UsersService {
       const role: userRole = body.role
         ? (body.role as userRole)
         : userRole.USER;
-      const user = await this.prisma.user.create({
+      const user: User = await this.prisma.user.create({
         data: {
           name: body.name,
           password: hashPassword,
@@ -93,7 +98,7 @@ export class UsersService {
   }
 
   async orderHistory(userId: number, req: any): Promise<ResponseInterface> {
-    let orders: any;
+    let orders: Order[];
     try {
       if (req.user.role === userRole.ADMIN) {
         // Admin can view order history for any user

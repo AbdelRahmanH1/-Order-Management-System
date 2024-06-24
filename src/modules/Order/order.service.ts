@@ -5,8 +5,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { OrderStatus } from '@prisma/client';
+import { Cart } from 'src/Interfaces/models/cart.interface';
 import { Order } from 'src/Interfaces/models/order.interface';
-
 import { ResponseInterface } from 'src/Interfaces/response.interface';
 import { formatOrder } from 'src/Utils/formatOrder.utils';
 import { userRole } from 'src/modules/User/user-role.enum';
@@ -22,7 +22,7 @@ export class OrderService {
 
     try {
       // 1. Find the user's cart including products
-      const cart = await this.prisma.cart.findUnique({
+      const cart: Cart = await this.prisma.cart.findUnique({
         where: { userId },
         include: { products: true },
       });
@@ -57,8 +57,11 @@ export class OrderService {
           };
         }),
       );
-
-      // 4. Create the order in the database
+      // 4. Calculate finalPrice for the entire order
+      const finalPrice = productsWithTotalPrice.reduce((acc, product) => {
+        return acc + product.totalPrice;
+      }, 0);
+      // 5. Create the order in the database
       await this.prisma.order.create({
         data: {
           userId: userId,
@@ -71,13 +74,14 @@ export class OrderService {
               })),
             },
           },
+          finalPrice: finalPrice,
         },
         include: {
           products: true,
         },
       });
 
-      // 5. Update product stock after creating the order
+      // 6. Update product stock after creating the order
       for (const cartProduct of cart.products) {
         await this.prisma.product.update({
           where: { productId: cartProduct.productId },
@@ -89,7 +93,7 @@ export class OrderService {
         });
       }
 
-      // 6. Clear user's cart by deleting cart products
+      // 7. Clear user's cart by deleting cart products
       await this.prisma.cartProduct.deleteMany({
         where: { cartId: cart.cartId },
       });
@@ -186,7 +190,7 @@ export class OrderService {
 
     try {
       // Find the order
-      const order = await this.prisma.order.findUnique({
+      const order: Order = await this.prisma.order.findUnique({
         where: { orderId },
         include: {
           products: {

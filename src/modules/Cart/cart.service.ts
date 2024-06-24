@@ -6,6 +6,9 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { UserRole } from '@prisma/client';
+import { Cart } from 'src/Interfaces/models/cart.interface';
+import { CartProduct } from 'src/Interfaces/models/cartProduct.interface';
+import { Product } from 'src/Interfaces/models/products.interface';
 import { ResponseInterface } from 'src/Interfaces/response.interface';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AddCartDTO } from './cartDTO/addCart.dto';
@@ -18,7 +21,7 @@ export class CartService {
   async addToCart(body: AddCartDTO, req: any): Promise<ResponseInterface> {
     try {
       // Check if the product exists and has enough stock
-      const product = await this.prisma.product.findUnique({
+      const product: Product = await this.prisma.product.findUnique({
         where: {
           productId: body.productId,
         },
@@ -30,7 +33,7 @@ export class CartService {
         throw new BadRequestException('Insufficient product stock');
 
       // Find the user's cart (we assume it always exists)
-      const cart = await this.prisma.cart.findUnique({
+      const cart: Cart = await this.prisma.cart.findUnique({
         where: { userId: req.user.userId },
         include: { products: true },
       });
@@ -41,14 +44,16 @@ export class CartService {
         );
       // Check if the product is already in the cart
 
-      const cartProduct = await this.prisma.cartProduct.findUnique({
-        where: {
-          cartId_productId: {
-            cartId: cart.cartId,
-            productId: body.productId,
+      const cartProduct: CartProduct = await this.prisma.cartProduct.findUnique(
+        {
+          where: {
+            cartId_productId: {
+              cartId: cart.cartId,
+              productId: body.productId,
+            },
           },
         },
-      });
+      );
 
       if (cartProduct) {
         // Check if the total quantity exceeds stock
@@ -88,7 +93,7 @@ export class CartService {
       const userId = req.user.userId;
 
       // 1. Check if the product exists
-      const product = await this.prisma.product.findUnique({
+      const product: Product = await this.prisma.product.findUnique({
         where: { productId: productId },
       });
 
@@ -97,7 +102,7 @@ export class CartService {
       }
 
       // 2. Find the user's cart
-      const cart = await this.prisma.cart.findUnique({
+      const cart: Cart = await this.prisma.cart.findUnique({
         where: { userId: userId },
         include: { products: true },
       });
@@ -107,14 +112,16 @@ export class CartService {
       }
 
       // 3. Check if the product is already in the cart
-      const cartProduct = await this.prisma.cartProduct.findUnique({
-        where: {
-          cartId_productId: {
-            cartId: cart.cartId,
-            productId: productId,
+      const cartProduct: CartProduct = await this.prisma.cartProduct.findUnique(
+        {
+          where: {
+            cartId_productId: {
+              cartId: cart.cartId,
+              productId: productId,
+            },
           },
         },
-      });
+      );
 
       if (!cartProduct) {
         throw new BadRequestException('Product is not in the cart');
@@ -154,7 +161,7 @@ export class CartService {
     req: any,
   ): Promise<ResponseInterface> {
     try {
-      const cart = await this.prisma.cart.findUnique({
+      const cart: Cart = await this.prisma.cart.findUnique({
         where: {
           userId: req.user.userId,
         },
@@ -185,7 +192,7 @@ export class CartService {
 
   async viewCart(userId: number, req: any): Promise<ResponseInterface> {
     try {
-      const cart = await this.prisma.cart.findUnique({
+      const cart: Cart = await this.prisma.cart.findUnique({
         where: {
           userId: userId,
         },
