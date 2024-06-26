@@ -45,7 +45,7 @@ export class SignupDTO {
     message: 'Gender must be either "male" or "female"',
   })
   @Transform(({ value }) => value || 'male')
-  gender: string;
+  gender?: string;
 
   @ApiProperty({ example: 'Egypt', type: 'string', required: true })
   @MinLength(10)
@@ -59,5 +59,5 @@ export class SignupDTO {
   })
   @IsOptional()
   @IsEnum(userRole)
-  role: string;
+  role?: string;
 }

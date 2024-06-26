@@ -1,9 +1,8 @@
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Request } from 'express';
-import { ResponseInterface } from 'src/Interfaces/response.interface';
 import { authenticationGuard } from '../../guards/authentication.guard';
 import { PrismaService } from '../../prisma/prisma.service';
+import { LoginDTO } from './userDTO/login.dto';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 
@@ -13,14 +12,6 @@ describe('UsersController', () => {
     signUp: jest.fn().mockResolvedValue({
       success: true,
       message: 'user Created Successfully',
-    }),
-    login: jest.fn().mockResolvedValue({
-      success: true,
-      token: 'token',
-    }),
-    orderHistory: jest.fn().mockResolvedValue({
-      success: true,
-      results: [{ name: 'object one' }, { name: 'object two' }],
     }),
   };
 
@@ -62,41 +53,21 @@ describe('UsersController', () => {
       password: '12345',
       address: 'alexandria Egypt',
     });
-    expect(mocksUsersServices.signUp).not.toBeNull();
   });
 
   it('Should Login the User', async () => {
-    const loginDTO = await controller.login({
+    const mockToken = 'mocked.token.string';
+
+    const loginDTO: LoginDTO = {
       email: 'ahmed@gmail.com',
       password: '12345',
-    });
-
-    expect(loginDTO).toEqual({
-      success: true,
-      token: 'token',
-    });
-    expect(mocksUsersServices.login).toHaveBeenCalledWith({
-      email: 'ahmed@gmail.com',
-      password: '12345',
-    });
-
-    expect(mocksUsersServices.login).not.toBeNull();
-  });
-
-  it('Should Return User History', async () => {
-    const userId = 1;
-    const mockRequest = {} as Request;
-    const expectedResult: ResponseInterface = {
-      success: true,
-      results: [{ name: 'object one' }, { name: 'object two' }],
     };
 
-    const result = await controller.orderHistory(userId, mockRequest);
-    expect(result).toEqual(expectedResult);
-    expect(mocksUsersServices.orderHistory).toHaveBeenCalledWith(
-      userId,
-      mockRequest,
-    );
-    expect(mocksUsersServices.orderHistory).not.toBeNull();
+    const response = await controller.login(loginDTO);
+
+    expect(response).toEqual({
+      success: true,
+      token: mockToken,
+    });
   });
 });

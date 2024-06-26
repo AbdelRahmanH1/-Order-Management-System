@@ -20,13 +20,13 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Request } from 'express';
-import { authenticationGuard } from 'src/guards/authentication.guard';
-import { authorizationGuard } from 'src/guards/authorization.guard';
-import { failedResponse } from 'src/swaggerResponse/failed.response';
-import { successResponse } from 'src/swaggerResponse/success.response';
-import { userHistoryResponse } from 'src/swaggerResponse/userHistory.response';
-import { userLoginResponse } from 'src/swaggerResponse/userlogin.response';
 import { ResponseInterface } from '../../Interfaces/response.interface';
+import { authenticationGuard } from '../../guards/authentication.guard';
+import { authorizationGuard } from '../../guards/authorization.guard';
+import { failedResponse } from '../../swaggerResponse/failed.response';
+import { successResponse } from '../../swaggerResponse/success.response';
+import { userHistoryResponse } from '../../swaggerResponse/userHistory.response';
+import { userLoginResponse } from '../../swaggerResponse/userlogin.response';
 import { userRole } from './user-role.enum';
 import { LoginDTO } from './userDTO/login.dto';
 import { SignupDTO } from './userDTO/signup.dto';
@@ -55,6 +55,7 @@ export class UsersController {
   login(@Body() body: LoginDTO): Promise<ResponseInterface> {
     return this._UsersServices.login(body);
   }
+
   //SignUp
   @ApiCreatedResponse({
     description: 'User Created successfully',
@@ -72,6 +73,7 @@ export class UsersController {
   signUp(@Body() body: SignupDTO): Promise<ResponseInterface> {
     return this._UsersServices.signUp(body);
   }
+
   //get History'order
   @ApiOkResponse({
     description: "Order's User history",

@@ -21,13 +21,13 @@ import {
   ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger';
-import { ResponseInterface } from 'src/Interfaces/response.interface';
-import { authenticationGuard } from 'src/guards/authentication.guard';
-import { authorizationGuard } from 'src/guards/authorization.guard';
-import { userRole } from 'src/modules/User/user-role.enum';
-import { failedResponse } from 'src/swaggerResponse/failed.response';
-import { orderDetailsResponse } from 'src/swaggerResponse/orderDetails.response';
-import { successResponse } from 'src/swaggerResponse/success.response';
+import { ResponseInterface } from '../../Interfaces/response.interface';
+import { authenticationGuard } from '../../guards/authentication.guard';
+import { authorizationGuard } from '../../guards/authorization.guard';
+import { failedResponse } from '../../swaggerResponse/failed.response';
+import { orderDetailsResponse } from '../../swaggerResponse/orderDetails.response';
+import { successResponse } from '../../swaggerResponse/success.response';
+import { userRole } from '../User/user-role.enum';
 import { CartService } from './cart.service';
 import { AddCartDTO } from './cartDTO/addCart.dto';
 import { RemoveCartDTO } from './cartDTO/removeCart.dto';

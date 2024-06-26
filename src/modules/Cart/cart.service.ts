@@ -6,11 +6,11 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { UserRole } from '@prisma/client';
-import { Cart } from 'src/Interfaces/models/cart.interface';
-import { CartProduct } from 'src/Interfaces/models/cartProduct.interface';
-import { Product } from 'src/Interfaces/models/products.interface';
-import { ResponseInterface } from 'src/Interfaces/response.interface';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { Cart } from '../../Interfaces/models/cart.interface';
+import { CartProduct } from '../../Interfaces/models/cartProduct.interface';
+import { Product } from '../../Interfaces/models/products.interface';
+import { ResponseInterface } from '../../Interfaces/response.interface';
+import { PrismaService } from '../../prisma/prisma.service';
 import { AddCartDTO } from './cartDTO/addCart.dto';
 import { RemoveCartDTO } from './cartDTO/removeCart.dto';
 

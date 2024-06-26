@@ -5,12 +5,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { OrderStatus } from '@prisma/client';
-import { Cart } from 'src/Interfaces/models/cart.interface';
-import { Order } from 'src/Interfaces/models/order.interface';
-import { ResponseInterface } from 'src/Interfaces/response.interface';
-import { formatOrder } from 'src/Utils/formatOrder.utils';
-import { userRole } from 'src/modules/User/user-role.enum';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { Cart } from '../../Interfaces/models/cart.interface';
+import { Order } from '../../Interfaces/models/order.interface';
+import { ResponseInterface } from '../../Interfaces/response.interface';
+import { formatOrder } from '../../Utils/formatOrder.utils';
+import { PrismaService } from '../../prisma/prisma.service';
+import { userRole } from '../User/user-role.enum';
 import { ApplyCouponDTO } from './orderDTO/applyCoupon.dto';
 
 @Injectable()

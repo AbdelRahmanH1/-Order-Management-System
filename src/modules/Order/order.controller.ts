@@ -20,14 +20,14 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Request } from 'express';
-import { ResponseInterface } from 'src/Interfaces/response.interface';
-import { authenticationGuard } from 'src/guards/authentication.guard';
-import { authorizationGuard } from 'src/guards/authorization.guard';
-import { userRole } from 'src/modules/User/user-role.enum';
-import { discountResponse } from 'src/swaggerResponse/discount.response';
-import { failedResponse } from 'src/swaggerResponse/failed.response';
-import { successResponse } from 'src/swaggerResponse/success.response';
-import { viewCartResponse } from 'src/swaggerResponse/viewCart.response';
+import { ResponseInterface } from '../../Interfaces/response.interface';
+import { authenticationGuard } from '../../guards/authentication.guard';
+import { authorizationGuard } from '../../guards/authorization.guard';
+import { discountResponse } from '../../swaggerResponse/discount.response';
+import { failedResponse } from '../../swaggerResponse/failed.response';
+import { successResponse } from '../../swaggerResponse/success.response';
+import { viewCartResponse } from '../../swaggerResponse/viewCart.response';
+import { userRole } from '../User/user-role.enum';
 import { OrderService } from './order.service';
 import { ApplyCouponDTO } from './orderDTO/applyCoupon.dto';
 import { StatusDTO } from './orderDTO/status.dto';
