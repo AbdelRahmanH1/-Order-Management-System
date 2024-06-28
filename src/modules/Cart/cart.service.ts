@@ -27,7 +27,7 @@ export class CartService {
         },
       });
 
-      if (!product) throw new BadRequestException('Product not found');
+      if (!product) throw new NotFoundException('Product not found');
 
       if (product.stock < body.quantity)
         throw new BadRequestException('Insufficient product stock');
