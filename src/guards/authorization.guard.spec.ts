@@ -6,7 +6,7 @@ describe('AuthorizationGuard', () => {
   let guard: authorizationGuard;
 
   beforeEach(() => {
-    guard = new authorizationGuard([userRole.USER]);
+    guard = new authorizationGuard([userRole.ADMIN]);
   });
 
   it('should be defined', () => {
@@ -39,6 +39,11 @@ describe('AuthorizationGuard', () => {
       }),
     } as ExecutionContext;
 
-    expect(() => guard.canActivate(mockContext)).toThrow(ForbiddenException);
+    try {
+      guard.canActivate(mockContext);
+      fail('Expected ForbiddenException to be thrown');
+    } catch (error) {
+      expect(error).toBeInstanceOf(ForbiddenException);
+    }
   });
 });
