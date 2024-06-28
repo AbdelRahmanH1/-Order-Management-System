@@ -9,11 +9,13 @@ import { UsersService } from './users.service';
 
 describe('UsersController', () => {
   let controller: UsersController;
+
   const mocksUsersServices = {
     signUp: jest.fn().mockResolvedValue({
       success: true,
       message: 'user Created Successfully',
     }),
+
     login: jest.fn().mockResolvedValue({
       success: true,
       token: 'token',
@@ -45,58 +47,64 @@ describe('UsersController', () => {
     expect(controller).toBeDefined();
   });
 
-  it('should create a user', async () => {
-    const result = await controller.signUp({
-      name: 'Ahmed',
-      email: 'ahmed@gmail.com',
-      password: '12345',
-      address: 'alexandria Egypt',
+  describe('SignUp function', () => {
+    it('should create a user', async () => {
+      const result = await controller.signUp({
+        name: 'Ahmed',
+        email: 'ahmed@gmail.com',
+        password: '12345',
+        address: 'alexandria Egypt',
+      });
+      expect(result).toEqual({
+        success: true,
+        message: 'user Created Successfully',
+      });
+      expect(mocksUsersServices.signUp).toHaveBeenCalledWith({
+        name: 'Ahmed',
+        email: 'ahmed@gmail.com',
+        password: '12345',
+        address: 'alexandria Egypt',
+      });
+      expect(mocksUsersServices.signUp).not.toBeNull();
     });
-    expect(result).toEqual({
-      success: true,
-      message: 'user Created Successfully',
-    });
-    expect(mocksUsersServices.signUp).toHaveBeenCalledWith({
-      name: 'Ahmed',
-      email: 'ahmed@gmail.com',
-      password: '12345',
-      address: 'alexandria Egypt',
-    });
-    expect(mocksUsersServices.signUp).not.toBeNull();
   });
 
-  it('Should Login the User', async () => {
-    const loginDTO = await controller.login({
-      email: 'ahmed@gmail.com',
-      password: '12345',
-    });
+  describe('Login Function', () => {
+    it('Should Login the User', async () => {
+      const loginDTO = await controller.login({
+        email: 'ahmed@gmail.com',
+        password: '12345',
+      });
 
-    expect(loginDTO).toEqual({
-      success: true,
-      token: 'token',
-    });
-    expect(mocksUsersServices.login).toHaveBeenCalledWith({
-      email: 'ahmed@gmail.com',
-      password: '12345',
-    });
+      expect(loginDTO).toEqual({
+        success: true,
+        token: 'token',
+      });
+      expect(mocksUsersServices.login).toHaveBeenCalledWith({
+        email: 'ahmed@gmail.com',
+        password: '12345',
+      });
 
-    expect(mocksUsersServices.login).not.toBeNull();
+      expect(mocksUsersServices.login).not.toBeNull();
+    });
   });
 
-  it('Should Return User History', async () => {
-    const userId = 1;
-    const mockRequest = {} as Request;
-    const expectedResult: ResponseInterface = {
-      success: true,
-      results: [{ name: 'object one' }, { name: 'object two' }],
-    };
+  describe('OrderHistory Function', () => {
+    it('Should Return User History', async () => {
+      const userId = 1;
+      const mockRequest = {} as Request;
+      const expectedResult: ResponseInterface = {
+        success: true,
+        results: [{ name: 'object one' }, { name: 'object two' }],
+      };
 
-    const result = await controller.orderHistory(userId, mockRequest);
-    expect(result).toEqual(expectedResult);
-    expect(mocksUsersServices.orderHistory).toHaveBeenCalledWith(
-      userId,
-      mockRequest,
-    );
-    expect(mocksUsersServices.orderHistory).not.toBeNull();
+      const result = await controller.orderHistory(userId, mockRequest);
+      expect(result).toEqual(expectedResult);
+      expect(mocksUsersServices.orderHistory).toHaveBeenCalledWith(
+        userId,
+        mockRequest,
+      );
+      expect(mocksUsersServices.orderHistory).not.toBeNull();
+    });
   });
 });
