@@ -7,7 +7,7 @@ This project implements an Order Management System (OMS) for an e-commerce mobil
 - **Create User**:
 
   - **Endpoint**: `POST /api/users/signup`
-  - **Functionality**: Create User
+  - **Functionality**: Create a new User
 
 - **Login**:
 
