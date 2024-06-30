@@ -98,7 +98,7 @@ export class CartService {
       });
 
       if (!product) {
-        throw new BadRequestException('Product not found');
+        throw new NotFoundException('Product not found');
       }
 
       // 2. Find the user's cart
