@@ -2,17 +2,22 @@
 
 This project implements an Order Management System (OMS) for an e-commerce mobile app using NestJS and Prisma.
 
-# Order Management System
-
-This project implements an Order Management System (OMS) for an e-commerce mobile app using NestJS and Prisma.
-
 ## Features
 
-- **Create User**: -**Endpoint**: `POST /api/users/signup` -**Functionality**: Create User
+- **Create User**:
 
-- **Login**: -**Endpoint**: `POST /api/users/login` -**Functionality**: Login User and retrive token
+  - **Endpoint**: `POST /api/users/signup`
+  - **Functionality**: Create User
 
-- **Order History**: -**Endpoint**: `GET /api/users/:userId/orders` -**Functionality**: Retrieves the user's order history
+- **Login**:
+
+  - **Endpoint**: `POST /api/users/login`
+  - **Functionality**: Login User and retrive token
+
+- **Order History**:
+
+  - **Endpoint**: `GET /api/users/:userId/orders`
+  - **Functionality**: Retrieves the user's order history
 
 - **Add to Cart**:
 
